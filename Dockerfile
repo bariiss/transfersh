@@ -1,5 +1,5 @@
 # Start from the latest Go base image
-FROM golang:latest AS builder
+FROM golang:1.23 AS builder
 
 # Set the current working directory inside the container
 WORKDIR /app
@@ -22,7 +22,7 @@ FROM alpine:latest
 WORKDIR /root/
 
 # Copy the pre-built binary from the previous stage
-COPY --from=builder /app/transfersh-cli .
+COPY --from=builder /app/transfersh .
 
 # Command to run the executable
-ENTRYPOINT ["./transfersh-cli"]
+ENTRYPOINT ["./transfersh"]
