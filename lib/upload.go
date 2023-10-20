@@ -10,7 +10,7 @@ import (
 // Path: lib/upload.go
 
 func Upload(reader io.Reader, fileName string, config *c.Config, size int64) {
-	resp, err := ct.UploadContent(reader, fileName, config, size)
+	resp, err := ct.UploadContent(fileName, reader, size, config)
 	if err != nil {
 		fmt.Println(err)
 		return

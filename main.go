@@ -8,12 +8,11 @@ import (
 	ct "github.com/bariiss/transfersh/lib/content"
 	"github.com/spf13/cobra"
 	"os"
-	"path/filepath"
 )
 
 // Path: main.go
 
-var version = "0.1.5"
+var version = "0.1.6"
 
 var rootCmd = &cobra.Command{
 	Use:   "transfersh [file|directory]",
@@ -47,8 +46,7 @@ func executeTransfer(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fileName := filepath.Base(file)              // get file name
-	reader, size, err := ct.PrepareContent(file) // prepare content
+	fileName, reader, size, err := ct.PrepareContent(file)
 	if err != nil {
 		fmt.Println("Error preparing content:", err)
 		return

@@ -2,8 +2,6 @@ package content
 
 import (
 	"archive/zip"
-	"bytes"
-	"io"
 	"os"
 	"path/filepath"
 )
@@ -11,11 +9,17 @@ import (
 // Path: lib/content/zip.go
 
 // ZipDirectory zips the directory and returns a reader
-func ZipDirectory(directory string) (io.Reader, int64, error) {
-	var buf bytes.Buffer
-	zipWriter := zip.NewWriter(&buf)
+func ZipDirectory(directory, zipPath string) error {
+	zipFile, err := os.Create(zipPath)
+	if err != nil {
+		return err
+	}
+	defer zipFile.Close()
 
-	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+	zipWriter := zip.NewWriter(zipFile)
+	defer zipWriter.Close()
+
+	return filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || (info.Mode()&os.ModeSocket) != 0 {
 			return err
 		}
@@ -29,11 +33,4 @@ func ZipDirectory(directory string) (io.Reader, int64, error) {
 		_, err = zf.Write(content)
 		return err
 	})
-
-	if err != nil {
-		return nil, 0, err
-	}
-
-	err = zipWriter.Close()
-	return &buf, int64(buf.Len()), err
 }

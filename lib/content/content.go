@@ -7,26 +7,46 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 // Path: lib/content/content.go
 
-// PrepareContent prepares the content for upload
-func PrepareContent(file string) (io.Reader, int64, error) {
-	info, err := os.Stat(file) // get file info
-	if info.IsDir() {
-		reader, size, err := ZipDirectory(file)
-		return reader, size, err
-	}
-	f, err := os.Open(file)
+// PrepareContent prepares the content for uploading
+func PrepareContent(filePath string) (fileName string, reader io.Reader, size int64, err error) {
+	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		return nil, 0, err
+		return
 	}
-	fileInfo, _ := f.Stat()
-	return f, fileInfo.Size(), nil
+
+	if fileInfo.IsDir() {
+		fileName = filepath.Base(filePath) + ".zip"
+		zipPath := filepath.Join(os.TempDir(), fileName)
+		err = ZipDirectory(filePath, zipPath)
+		if err != nil {
+			return
+		}
+		reader, err = os.Open(zipPath)
+		if err != nil {
+			return
+		}
+		defer func(name string) {
+			err := os.Remove(name)
+			if err != nil {
+				fmt.Println("Error removing zip file:", err)
+			}
+		}(zipPath) // ensure zip file is removed after uploading
+		size = fileInfo.Size()
+		return
+	}
+
+	fileName = filepath.Base(filePath)
+	reader, err = os.Open(filePath)
+	size = fileInfo.Size()
+	return
 }
 
-func UploadContent(reader io.Reader, fileName string, config *c.Config, size int64) (*http.Response, error) {
+func UploadContent(fileName string, reader io.Reader, size int64, config *c.Config) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("PUT", config.BaseURL+"/"+fileName, reader)
 	if err != nil {
