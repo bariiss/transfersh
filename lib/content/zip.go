@@ -12,23 +12,21 @@ import (
 
 // ZipDirectory zips the directory and returns a reader
 func ZipDirectory(directory string) (io.Reader, int64, error) {
-	var buf bytes.Buffer             // create buffer
-	zipWriter := zip.NewWriter(&buf) // create zip writer
+	var buf bytes.Buffer
+	zipWriter := zip.NewWriter(&buf)
 
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if err != nil { // skip errors
+		if err != nil || info.IsDir() || (info.Mode()&os.ModeSocket) != 0 {
 			return err
 		}
-		if info.IsDir() { // skip directories
-			return nil
-		}
-		relPath, _ := filepath.Rel(directory, path) // get relative path
-		zf, _ := zipWriter.Create(relPath)          // create zip file
-		content, err := os.ReadFile(path)           // read file content
+
+		relPath, _ := filepath.Rel(directory, path)
+		zf, _ := zipWriter.Create(relPath)
+		content, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
-		_, err = zf.Write(content) // write file content to zip file
+		_, err = zf.Write(content)
 		return err
 	})
 
@@ -36,9 +34,6 @@ func ZipDirectory(directory string) (io.Reader, int64, error) {
 		return nil, 0, err
 	}
 
-	if err = zipWriter.Close(); err != nil { // close zip writer
-		return nil, 0, err
-	}
-
-	return &buf, int64(buf.Len()), nil
+	err = zipWriter.Close()
+	return &buf, int64(buf.Len()), err
 }
