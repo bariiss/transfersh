@@ -33,7 +33,7 @@ func PrintResponse(resp *http.Response, size int64, config *c.Config, fileName s
 
 	// Copy to clipboard if possible, don't fail if it's not possible
 	if err := clipboard.WriteAll(string(body)); err != nil {
-		fmt.Println("Error copying to clipboard:", err)
+		fmt.Println("Failed to copy to clipboard:", err)
 	}
 
 	blue := color.New(color.FgBlue).SprintFunc()

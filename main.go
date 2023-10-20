@@ -13,7 +13,7 @@ import (
 
 // Path: main.go
 
-var version = "0.1.2"
+var version = "0.1.3"
 
 var rootCmd = &cobra.Command{
 	Use:   "transfersh [file|directory]",
