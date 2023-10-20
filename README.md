@@ -14,7 +14,7 @@
 You need to have [Go](https://golang.org/) installed. Then you can get the tool via:
 
 ```bash
-go install github.com/yourusername/transfersh-cli@latest
+go install github.com/yourusername/transfersh@latest
 ```
 
 ## Usage
