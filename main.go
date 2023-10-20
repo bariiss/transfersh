@@ -13,6 +13,8 @@ import (
 
 // Path: main.go
 
+var version = "0.1.2"
+
 var rootCmd = &cobra.Command{
 	Use:   "transfersh [file|directory]",
 	Short: "Transfersh files or directories.",
@@ -20,8 +22,9 @@ var rootCmd = &cobra.Command{
 Given a file or directory path, it will upload the content and 
 provide a URL for download. If a directory path is provided,
 it will be compressed as a .zip file and then uploaded.`,
-	Args: cobra.ExactArgs(1),
-	Run:  executeTransfer,
+	Version: version,
+	Args:    cobra.ExactArgs(1),
+	Run:     executeTransfer,
 }
 
 func main() {
@@ -52,8 +55,8 @@ func executeTransfer(cmd *cobra.Command, args []string) {
 	}
 
 	if info, err := os.Stat(file); err == nil && info.IsDir() { // check if file is directory
-		fileName += ".zip"
+		fileName += ".zip" // add .zip extension
 	}
 
-	lib.Upload(reader, fileName, loadConfig, size)
+	lib.Upload(reader, fileName, loadConfig, size) // upload and print
 }
