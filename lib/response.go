@@ -31,9 +31,11 @@ func PrintResponse(resp *http.Response, size int64, config *c.Config, fileName s
 		return fmt.Errorf("failed to upload: %s", body)
 	}
 
+	hiBlue := color.New(color.FgHiBlue).SprintFunc()
+
 	// Copy to clipboard if possible, don't fail if it's not possible
 	if err := clipboard.WriteAll(string(body)); err != nil {
-		fmt.Println("Failed to copy to clipboard:", err)
+		fmt.Println(hiBlue("Failed to copy to clipboard:"), hiBlue(err))
 	}
 
 	blue := color.New(color.FgBlue).SprintFunc()
