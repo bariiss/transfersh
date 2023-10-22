@@ -12,7 +12,9 @@ import (
 
 // Path: main.go
 
-var version = "0.1.6"
+var version = "0.1.7"
+var maxDays string
+var maxDownloads string
 
 var rootCmd = &cobra.Command{
 	Use:   "transfersh [file|directory]",
@@ -24,6 +26,11 @@ it will be compressed as a .zip file and then uploaded.`,
 	Version: version,
 	Args:    cobra.ExactArgs(1),
 	Run:     executeTransfer,
+}
+
+func init() {
+	rootCmd.Flags().StringVar(&maxDays, "max-days", "", "Maximum number of days before the file is deleted")
+	rootCmd.Flags().StringVar(&maxDownloads, "max-downloads", "", "Maximum number of downloads before the file is deleted")
 }
 
 func main() {
@@ -56,5 +63,14 @@ func executeTransfer(cmd *cobra.Command, args []string) {
 		fileName += ".zip" // add .zip extension
 	}
 
-	lib.Upload(reader, fileName, loadConfig, size) // upload and print
+	resp, err := ct.UploadContent(fileName, reader, size, loadConfig, maxDays, maxDownloads)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = lib.PrintResponse(resp, size, loadConfig, fileName)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

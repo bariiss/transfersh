@@ -46,12 +46,17 @@ func PrepareContent(filePath string) (fileName string, reader io.Reader, size in
 	return
 }
 
-func UploadContent(fileName string, reader io.Reader, size int64, config *c.Config) (*http.Response, error) {
+func UploadContent(fileName string, reader io.Reader, size int64, config *c.Config, maxDays string, maxDownloads string) (*http.Response, error) {
 	client := &http.Client{}
+
 	req, err := http.NewRequest("PUT", config.BaseURL+"/"+fileName, reader)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
+
+	// add some headers -H "Max-Days: 1" -H "Max-Downloads: 1"
+	req.Header.Add("Max-Days", maxDays)
+	req.Header.Add("Max-Downloads", maxDownloads)
 
 	bar := pb.Full.Start64(size)
 	barReader := bar.NewProxyReader(reader)
