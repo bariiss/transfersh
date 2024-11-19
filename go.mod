@@ -1,6 +1,6 @@
 module github.com/bariiss/transfersh
 
-go 1.21
+go 1.23.3
 
 require (
 	github.com/atotto/clipboard v0.1.4

@@ -14,10 +14,20 @@ func ZipDirectory(directory, zipPath string) error {
 	if err != nil {
 		return err
 	}
-	defer zipFile.Close()
+	defer func(zipFile *os.File) {
+		err := zipFile.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(zipFile)
 
 	zipWriter := zip.NewWriter(zipFile)
-	defer zipWriter.Close()
+	defer func(zipWriter *zip.Writer) {
+		err := zipWriter.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(zipWriter)
 
 	return filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || (info.Mode()&os.ModeSocket) != 0 {
